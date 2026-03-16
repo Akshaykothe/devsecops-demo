@@ -29,7 +29,7 @@ pipeline {
         stage('SonarQube SAST') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    bat "%SCANNER_HOME%\\bin\\sonar-scanner -Dsonar.projectKey=devsecops-demo -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000"
+                    bat "%SCANNER_HOME%\\bin\\sonar-scanner -Dsonar.projectKey=devsecops-demo -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqa_eb9a6f217cf218bce9c842bcce808030015be49b"
                 }
             }
         }
