@@ -18,31 +18,30 @@ pipeline {
         stage('🔧 Install Dependencies') {
             steps {
                 echo "Installing Python dependencies..."
-                sh 'pip install -r requirements.txt'
+                bat 'pip install -r requirements.txt'
             }
         }
 
         stage('🧪 Run Tests') {
             steps {
                 echo "Running unit tests..."
-                sh 'pytest test_app.py -v'
+                bat 'pytest test_app.py -v'
             }
         }
 
         stage('🐳 Build Docker Image') {
             steps {
                 echo "Building Docker image..."
-                sh "docker build -t ${DOCKER_IMAGE} ."
+                bat "docker build -t %APP_NAME%:%BUILD_NUMBER% ."
             }
         }
 
         stage('🔍 Trivy Security Scan') {
             steps {
                 echo "Scanning for vulnerabilities..."
-                sh "trivy image --exit-code 0 --severity HIGH,CRITICAL ${DOCKER_IMAGE}"
+                bat "trivy image --exit-code 0 --severity HIGH,CRITICAL %APP_NAME%:%BUILD_NUMBER%"
             }
         }
-
     }
 
     post {
@@ -54,3 +53,16 @@ pipeline {
         }
     }
 }
+```
+
+**What changed:**
+- `sh` → `bat` (Windows command)
+- `${DOCKER_IMAGE}` → `%APP_NAME%:%BUILD_NUMBER%` (Windows variable syntax)
+
+---
+
+Paste this in VS Code → press `Ctrl+S` → then push to GitHub:
+```
+git add .
+git commit -m "Fix Jenkinsfile for Windows"
+git push origin main
