@@ -28,13 +28,7 @@ pipeline {
         stage('SonarQube SAST') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    bat "C:\\Users\\Akshay-ragina-kothe\\AppData\\Local\\Microsoft\\WinGet\\Links\\trivy.exe image --exit-code 0 --severity HIGH,CRITICAL %APP_NAME%:%BUILD_NUMBER% || echo skipping trivy"
-                    bat '''
-                        sonar-scanner ^
-                        -Dsonar.projectKey=devsecops-demo ^
-                        -Dsonar.sources=. ^
-                        -Dsonar.host.url=http://localhost:9000
-                    '''
+                    bat "sonar-scanner -Dsonar.projectKey=devsecops-demo -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000"
                 }
             }
         }
