@@ -38,7 +38,7 @@ pipeline {
         stage('Trivy Security Scan') {
             steps {
                 echo "Scanning for vulnerabilities..."
-                bat "trivy image --exit-code 0 --severity HIGH,CRITICAL %APP_NAME%:%BUILD_NUMBER%"
+                bat "C:\\Users\\Akshay-ragina-kothe\\AppData\\Local\\Microsoft\\WinGet\\Links\\trivy.exe image --exit-code 0 --severity HIGH,CRITICAL %APP_NAME%:%BUILD_NUMBER%"
             }
         }
     }
@@ -52,3 +52,13 @@ pipeline {
         }
     }
 }
+```
+
+**Open VS Code → Jenkinsfile → delete everything → paste above code → Ctrl+S**
+
+Then run in CMD:
+```
+cd C:\Users\Akshay-ragina-kothe\Documents\devsecops-demo
+git add .
+git commit -m "Fix Trivy full path"
+git push origin main
