@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         APP_NAME = "devsecops-demo"
+        SCANNER_HOME = tool 'SonarQube-Scanner'
     }
 
     stages {
@@ -28,7 +29,7 @@ pipeline {
         stage('SonarQube SAST') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    bat "sonar-scanner -Dsonar.projectKey=devsecops-demo -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000"
+                    bat "%SCANNER_HOME%\\bin\\sonar-scanner -Dsonar.projectKey=devsecops-demo -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000"
                 }
             }
         }
