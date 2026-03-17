@@ -6,6 +6,7 @@ pipeline {
         DOCKERHUB_USERNAME = "akshaykothe"
         IMAGE_NAME = "${DOCKERHUB_USERNAME}/${APP_NAME}"
         SCANNER_HOME = tool 'SonarQube-Scanner'
+        MANIFEST_REPO = "https://github.com/Akshaykothe/devsecops-manifests.git"
     }
 
     stages {
@@ -60,11 +61,28 @@ pipeline {
                 }
             }
         }
+
+        stage('Update Manifest Repo') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                    bat """
+                        git clone https://%GIT_USER%:%GIT_PASS%@github.com/Akshaykothe/devsecops-manifests.git
+                        cd devsecops-manifests
+                        powershell -Command "(Get-Content deployment.yaml) -replace 'akshaykothe/devsecops-demo:.*', 'akshaykothe/devsecops-demo:%BUILD_NUMBER%' | Set-Content deployment.yaml"
+                        git config user.email "jenkins@devsecops.com"
+                        git config user.name "Jenkins"
+                        git add deployment.yaml
+                        git commit -m "Update image to %IMAGE_NAME%:%BUILD_NUMBER%"
+                        git push https://%GIT_USER%:%GIT_PASS%@github.com/Akshaykothe/devsecops-manifests.git main
+                    """
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo "Pipeline SUCCESS - Image pushed to DockerHub!"
+            echo "Pipeline SUCCESS - Image pushed and manifest updated!"
         }
         failure {
             echo "Pipeline FAILED"
