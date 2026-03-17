@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         APP_NAME = "devsecops-demo"
+        DOCKERHUB_USERNAME = "akshaykothe"
+        IMAGE_NAME = "${DOCKERHUB_USERNAME}/${APP_NAME}"
         SCANNER_HOME = tool 'SonarQube-Scanner'
     }
 
@@ -36,20 +38,31 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                bat "docker build -t %APP_NAME%:%BUILD_NUMBER% ."
+                bat "docker build -t %IMAGE_NAME%:%BUILD_NUMBER% ."
             }
         }
 
         stage('Trivy Security Scan') {
             steps {
-                bat "C:\\Users\\Akshay-ragina-kothe\\AppData\\Local\\Microsoft\\WinGet\\Links\\trivy.exe image --exit-code 0 --severity HIGH,CRITICAL %APP_NAME%:%BUILD_NUMBER%"
+                bat "C:\\Users\\Akshay-ragina-kothe\\AppData\\Local\\Microsoft\\WinGet\\Links\\trivy.exe image --exit-code 0 --severity HIGH,CRITICAL %IMAGE_NAME%:%BUILD_NUMBER%"
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    bat "docker login -u %DOCKER_USER% -p %DOCKER_PASS%"
+                    bat "docker push %IMAGE_NAME%:%BUILD_NUMBER%"
+                    bat "docker tag %IMAGE_NAME%:%BUILD_NUMBER% %IMAGE_NAME%:latest"
+                    bat "docker push %IMAGE_NAME%:latest"
+                }
             }
         }
     }
 
     post {
         success {
-            echo "Pipeline SUCCESS"
+            echo "Pipeline SUCCESS - Image pushed to DockerHub!"
         }
         failure {
             echo "Pipeline FAILED"
